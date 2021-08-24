@@ -1,0 +1,35 @@
+■縦書き出力
+
+[年賀状：宛名を pandas と reportlab で]
+- 縦書きサンプル
+(http://satemochi.blog.fc2.com/blog-entry-65.html)
+
+[pythonでReportLabを使ったPDFファイルの作り方]
+- 複数行をまとめて追加する。
+(https://llul.work/entry/2016/11/04/python%E3%81%A7ReportLab%E3%82%92%E4%BD%BF%E3%81%A3%E3%81%9FPDF%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E3%81%AE%E4%BD%9C%E3%82%8A%E6%96%B9%EF%BC%88%E3%83%81%E3%83%BC%E3%83%88%E7%9A%84%E3%81%AA%EF%BC%89)
+
+[PythonのPDFライブラリ「ReportLab」の使い方]
+- 用紙サイズ、向き、改ページ
+(https://symfoware.blog.fc2.com/blog-entry-769.html)
+
+[Pythonのreportlabの使い方まとめ - Qiita]
+- 線の描画
+(https://qiita.com/takahashi_you/items/8c5fb1f07db1825c67a5)
+
+[Documentation - ReportLab.com]
+(https://www.reportlab.com/dev/docs/)
+
+[ReportLab PDF Generation User Guide]
+(https://www.reportlab.com/docs/reportlab-userguide.pdf)
+
+ReportLab PLUS を使うと RML という言語で PDF を書けるようになる。
+ただし、月100ポンドのライセンスが必要。
+
+
+[もがわのほとり: ReportLabを使ってみる]
+- ParagraphStyle について書かれている。
+(http://mogawa.blogspot.com/2008/04/reportlab.html)
+
+[[reportlab-users] Newbie -- How to center text in a paragraph]
+- ParagraphStyle について書かれている。
+(http://two.pairlist.net/pipermail/reportlab-users/2006-June/005092.html)
