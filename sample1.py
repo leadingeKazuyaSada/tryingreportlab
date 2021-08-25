@@ -20,24 +20,55 @@ def main():
     size = portrait(A5)
     margin = (2.0 * cm, 2.0 * cm)
     font_size = 10.0
-    pm = PageMan(size, margin=margin, font_size=font_size)
+    line_space = 9.5
+    pm = PageMan(
+        size, margin=margin, font_size=font_size, line_space=line_space)
 
     pm.new_page()
 
     line_idx = 0
+
+    text = '私はいかにしてパッケージを作ったか'
+    ttl_line = PScLine(PScLineType.TITLE, text=text)
+    line_idx = pm.draw_direction(line_idx, ttl_line)
+
+    text = 'アラン・スミシ'
+    athr_line = PScLine(PScLineType.AUTHOR, text=text)
+    line_idx = pm.draw_author(line_idx, athr_line)
+
+    # 空行をはさむ
+    line_idx += 1
+
+    text = '太郎、登場する。' * 5 + '\n' + '太郎、登場する。' * 5
+    drct_line = PScLine(PScLineType.DIRECTION, text=text)
+    line_idx = pm.draw_direction(line_idx, drct_line)
+
+    # 空行をはさむ
+    line_idx += 1
+
     name = '太郎'
-    text = 'あいうえおかきくけこさしすせそたちつてと' * 10
-    dlg_line = PScLine(PScLineType.DIALOGUE, name, text)
+    text = 'あいうえおかきくけこ' * 5 + '\n' + 'あいうえおかきくけこ' * 5
+    dlg_line = PScLine(PScLineType.DIALOGUE, name=name, text=text)
     line_idx = pm.draw_dialogue(line_idx, dlg_line)
 
+    # 空行をはさむ
+    line_idx += 1
+
+    text = '光、登場する。' * 5 + '\n' + '光、登場する。' * 5
+    drct_line = PScLine(PScLineType.DIRECTION, text=text)
+    line_idx = pm.draw_direction(line_idx, drct_line)
+
+    # 空行をはさむ
+    line_idx += 1
+
     name = '光'
-    text = 'こっそりぴょんぴょん' * 10
-    dlg_line = PScLine(PScLineType.DIALOGUE, name, text)
+    text = 'こっそりぴょん' * 5 + '\n' + 'こっそりぴょん' * 5
+    dlg_line = PScLine(PScLineType.DIALOGUE, name=name, text=text)
     line_idx = pm.draw_dialogue(line_idx, dlg_line)
 
     name = 'ジョージ'
     text = 'あいうえおかきくけこさしすせそたちつてと' * 10
-    dlg_line = PScLine(PScLineType.DIALOGUE, name, text)
+    dlg_line = PScLine(PScLineType.DIALOGUE, name=name, text=text)
     line_idx = pm.draw_dialogue(line_idx, dlg_line)
 
     # ページを確定する

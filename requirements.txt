@@ -1,4 +1,4 @@
 fountain @ git+git://github.com/Tagirijus/fountain.git@7da5447abae640f34448dd36fee83f47a7415fcf
 Pillow==8.3.1
--e git+https://github.com/satamame/playscript.git@34b76e0040037e1676ee280ce052d2d7b48f579e#egg=playscript
+playscript @ git+https://github.com/satamame/playscript.git@34b76e0040037e1676ee280ce052d2d7b48f579e#egg=playscript
 reportlab==3.6.1
