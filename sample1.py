@@ -39,7 +39,32 @@ def main():
     # 空行をはさむ
     line_idx += 1
 
-    text = '太郎、登場する。' * 5 + '\n' + '太郎、登場する。' * 5
+    text = '登場人物'
+    chead_line = PScLine(PScLineType.CHARSHEADLINE, text=text)
+    line_idx = pm.draw_charsheadline(line_idx, chead_line)
+
+    # 空行をはさむ
+    line_idx += 1
+
+    name = '太郎'
+    text = '主人公。'
+    char_line = PScLine(PScLineType.CHARACTER, name=name, text=text)
+    line_idx = pm.draw_character(line_idx, char_line)
+
+    name = '光'
+    text = '正体不明の人物。' * 5
+    char_line = PScLine(PScLineType.CHARACTER, name=name, text=text)
+    line_idx = pm.draw_character(line_idx, char_line)
+
+    name = 'ジョージ・クルーニー'
+    text = '濃い外人。' * 5 + '\n' + '濃い外人。' * 3
+    char_line = PScLine(PScLineType.CHARACTER, name=name, text=text)
+    line_idx = pm.draw_character(line_idx, char_line)
+
+    # 空行をはさむ
+    line_idx += 1
+
+    text = '太郎、登場する。' * 5
     drct_line = PScLine(PScLineType.DIRECTION, text=text)
     line_idx = pm.draw_direction(line_idx, drct_line)
 
@@ -66,7 +91,7 @@ def main():
     dlg_line = PScLine(PScLineType.DIALOGUE, name=name, text=text)
     line_idx = pm.draw_dialogue(line_idx, dlg_line)
 
-    name = 'ジョージ'
+    name = 'ジョージ・クルーニー'
     text = 'あいうえおかきくけこさしすせそたちつてと' * 10
     dlg_line = PScLine(PScLineType.DIALOGUE, name=name, text=text)
     line_idx = pm.draw_dialogue(line_idx, dlg_line)
