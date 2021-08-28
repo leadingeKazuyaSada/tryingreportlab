@@ -24,7 +24,7 @@ def main():
     pm = PageMan(
         size, margin=margin, font_size=font_size, line_space=line_space)
 
-    pm.new_page()
+    # print(pm.canvas.getAvailableFonts())
 
     line_idx = 0
 
@@ -64,6 +64,13 @@ def main():
     # 空行をはさむ
     line_idx += 1
 
+    text = 'シーン１'
+    h1_line = PScLine(PScLineType.H1, text=text)
+    line_idx = pm.draw_h1(line_idx, h1_line, 1)
+
+    # 空行をはさむ
+    line_idx += 1
+
     text = '太郎、登場する。' * 5
     drct_line = PScLine(PScLineType.DIRECTION, text=text)
     line_idx = pm.draw_direction(line_idx, drct_line)
@@ -91,13 +98,20 @@ def main():
     dlg_line = PScLine(PScLineType.DIALOGUE, name=name, text=text)
     line_idx = pm.draw_dialogue(line_idx, dlg_line)
 
+    # 空行をはさむ
+    line_idx += 1
+
+    text = 'シーン２'
+    h1_line = PScLine(PScLineType.H1, text=text)
+    line_idx = pm.draw_h1(line_idx, h1_line, 99)
+
+    # 空行をはさむ
+    line_idx += 1
+
     name = 'ジョージ・クルーニー'
     text = 'あいうえおかきくけこさしすせそたちつてと' * 10
     dlg_line = PScLine(PScLineType.DIALOGUE, name=name, text=text)
     line_idx = pm.draw_dialogue(line_idx, dlg_line)
-
-    # ページを確定する
-    pm.close_page()
 
     # ファイルに出力する
     pm.save('out.pdf')
