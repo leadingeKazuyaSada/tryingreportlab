@@ -39,6 +39,13 @@ def main():
     # 空行をはさむ
     line_idx += 1
 
+    text = 'この台本に意味はありません。' * 5
+    cmmt_line = PScLine(PScLineType.COMMENT, text=text)
+    line_idx = pm.draw_comment(line_idx, cmmt_line)
+
+    # 空行をはさむ
+    line_idx += 1
+
     text = '登場人物'
     chead_line = PScLine(PScLineType.CHARSHEADLINE, text=text)
     line_idx = pm.draw_charsheadline(line_idx, chead_line)
@@ -66,7 +73,7 @@ def main():
 
     text = 'シーン１'
     h1_line = PScLine(PScLineType.H1, text=text)
-    line_idx = pm.draw_h1(line_idx, h1_line, 1)
+    line_idx = pm.draw_slugline(line_idx, h1_line, number=1, border=True)
 
     # 空行をはさむ
     line_idx += 1
@@ -101,9 +108,9 @@ def main():
     # 空行をはさむ
     line_idx += 1
 
-    text = 'シーン２'
+    text = 'その頃、ジョージは…'
     h1_line = PScLine(PScLineType.H1, text=text)
-    line_idx = pm.draw_h1(line_idx, h1_line, 99)
+    line_idx = pm.draw_slugline(line_idx, h1_line, number='1A')
 
     # 空行をはさむ
     line_idx += 1
@@ -112,6 +119,29 @@ def main():
     text = 'あいうえおかきくけこさしすせそたちつてと' * 10
     dlg_line = PScLine(PScLineType.DIALOGUE, name=name, text=text)
     line_idx = pm.draw_dialogue(line_idx, dlg_line)
+
+    # 空行をはさむ
+    line_idx += 1
+
+    text = 'ジョージ、退場。'
+    drct_line = PScLine(PScLineType.DIRECTION, text=text)
+    line_idx = pm.draw_direction(line_idx, drct_line)
+
+    # 空行 x 2個
+    empty_line = PScLine(PScLineType.EMPTY)
+    line_idx = pm.draw_empty(line_idx, empty_line)
+    line_idx = pm.draw_empty(line_idx, empty_line)
+
+    text = '暗転。'
+    drct_line = PScLine(PScLineType.DIRECTION, text=text)
+    line_idx = pm.draw_direction(line_idx, drct_line)
+
+    # 空行をはさむ
+    line_idx += 1
+
+    text = 'おわり'
+    endmk_line = PScLine(PScLineType.ENDMARK, text=text)
+    line_idx = pm.draw_endmark(line_idx, endmk_line)
 
     # ファイルに出力する
     pm.save('out.pdf')

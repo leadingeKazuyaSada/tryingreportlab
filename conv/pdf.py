@@ -113,7 +113,7 @@ class PageMan:
             if len(text) > max_len and text[max_len] == '」':
                 max_len -= 2
 
-        # 書き出す
+        # テキストを書き出す
         self.canvas.drawString(x, y, text[:max_len])
         return text[max_len:]
 
@@ -136,6 +136,7 @@ class PageMan:
                     self.init_page()
                     l_idx = 0
 
+                # 1行分だけ書き出す
                 line_indent = first_indent if first_line else indent
                 line = self.draw_line(l_idx, line, indent=line_indent)
                 first_line = False
@@ -151,14 +152,14 @@ class PageMan:
             self.init_page()
             l_idx = 0
 
-        # 1行として書き出し、余分は捨てる
+        # テキストを書き出す
         _ = self.draw_line(l_idx, line, indent=indent)
         return l_idx + 1
 
     def draw_line_bottom(self, l_idx, line):
         """テキストを下寄せで書き出す
         """
-        # インデントを1文字分とする
+        # インデント (1文字分)
         indent = self.font_size
 
         # 1行に収まる文字数にする
@@ -167,10 +168,10 @@ class PageMan:
         max_len = int(height // self.font_size)
         line = line[:max_len]
 
-        # 下端につくように indent を増やす
+        # 下端につくようにインデントを増やす
         indent += (max_len - len(line)) * self.font_size
 
-        # 書き出す
+        # テキストを1行として書き出す
         l_idx = self.draw_single_line(l_idx, line, indent=indent)
         return l_idx
 
@@ -190,12 +191,12 @@ class PageMan:
     def draw_charsheadline(self, l_idx, chead_line):
         """登場人物見出し行を書き出す
         """
-        # インデントは8文字分
+        # インデント (8文字分)
         indent = self.font_size * 8
 
-        # 1行として書き出す
-        _ = self.draw_single_line(l_idx, chead_line.text, indent=indent)
-        return l_idx + 1
+        # テキストを1行として書き出す
+        l_idx = self.draw_single_line(l_idx, chead_line.text, indent=indent)
+        return l_idx
 
     def draw_character(self, l_idx, char_line):
         """登場人物行を書き出す
@@ -212,47 +213,50 @@ class PageMan:
         else:
             text = name
 
+        # インデント (7文字分 -> 10文字分)
         first_indent = self.font_size * 7
         indent = self.font_size * 10
 
+        # テキストを書き出す
         l_idx = self.draw_lines(
             l_idx, text, indent=indent, first_indent=first_indent)
         return l_idx
 
-    def draw_h1(self, l_idx, h1_line, number=''):
-        """柱 (レベル1) を書き出す
+    def draw_slugline(self, l_idx, hx_line, number=None, border=False):
+        """柱を書き出す
         """
-
-        # 1行として書き出す
-        _ = self.draw_single_line(l_idx, h1_line.text)
+        # テキストを1行として書き出す
+        l_idx = self.draw_single_line(l_idx, hx_line.text)
 
         # 囲み線
-        x = self.get_line_x(l_idx)
-        x1 = x + self.font_size / 2 + self.line_space * 0.8
-        x2 = x - self.font_size / 2 - self.line_space * 0.8
-        y1 = self.get_line_y(-(self.font_size * 3))
-        y2 = self.margin.h - self.font_size
+        if border:
+            x = self.get_line_x(l_idx - 1)
+            x1 = x + self.font_size / 2 + self.line_space * 0.8
+            x2 = x - self.font_size / 2 - self.line_space * 0.8
+            y1 = self.get_line_y(-(self.font_size * 3))
+            y2 = self.margin.h - self.font_size
 
-        self.canvas.setLineWidth(0.1)
-        self.canvas.line(x1, y1, x1, y2)
-        self.canvas.line(x1, y1, x2, y1)
-        self.canvas.line(x2, y1, x2, y2)
+            self.canvas.setLineWidth(0.1)
+            self.canvas.line(x1, y1, x1, y2)
+            self.canvas.line(x1, y1, x2, y1)
+            self.canvas.line(x2, y1, x2, y2)
 
-        # 数字の位置
-        num_str = str(number)
-        w = self.canvas.stringWidth(
-            num_str, self.num_font_name, self.font_size)
-        x = self.get_line_x(l_idx) - w / 2
-        y = self.get_line_y(-self.font_size)
+        # 数字
+        if number is not None:
+            num_str = str(number)
+            w = self.canvas.stringWidth(
+                num_str, self.num_font_name, self.font_size)
+            x = self.get_line_x(l_idx - 1) - w / 2
+            y = self.get_line_y(-self.font_size)
 
-        # 数字を書き出す
-        self.canvas.setFont(self.num_font_name, self.font_size)
-        self.canvas.drawString(x, y, num_str)
+            # 数字を書き出す
+            self.canvas.setFont(self.num_font_name, self.font_size)
+            self.canvas.drawString(x, y, num_str)
 
-        # フォントを元に戻す
-        self.canvas.setFont(self.font_name, self.font_size)
+            # フォントを元に戻す
+            self.canvas.setFont(self.font_name, self.font_size)
 
-        return l_idx + 1
+        return l_idx
 
     def draw_direction(self, l_idx, drct_line):
         """ト書き行を書き出す
@@ -274,9 +278,31 @@ class PageMan:
             name = name[0] + ' ' + name[1]
         text = name + '「' + text + '」'
 
+        # インデント (1文字分 -> 5文字分)
         first_indent = self.font_size * 1
         indent = self.font_size * 5
 
+        # テキストを書き出す
         l_idx = self.draw_lines(
             l_idx, text, indent=indent, first_indent=first_indent)
+        return l_idx
+
+    def draw_endmark(self, l_idx, endmk_line):
+        """エンドマークを書き出す
+        """
+        self.draw_line_bottom(l_idx, endmk_line.text)
+        return l_idx + 1
+
+    def draw_comment(self, l_idx, cmmt_line):
+        """コメント行を書き出す
+        """
+        indent = self.font_size * 7
+        l_idx = self.draw_lines(l_idx, cmmt_line.text, indent=indent)
+        return l_idx
+
+    def draw_empty(self, l_idx, empty_line):
+        """空行を書き出す
+        """
+        # 空文字列を1行として書き出す
+        l_idx = self.draw_single_line(l_idx, '')
         return l_idx
