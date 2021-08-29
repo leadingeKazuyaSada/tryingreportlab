@@ -1,6 +1,10 @@
 from collections import namedtuple
 import io
 
+from reportlab.lib.pagesizes import portrait, A5
+from reportlab.lib.units import cm
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.cidfonts import UnicodeCIDFont
 from reportlab.pdfgen import canvas
 from playscript import PScLineType, PScLine
 
@@ -10,7 +14,7 @@ Size = namedtuple('Size' , 'w h')
 class PageMan:
     def __init__(self, size, margin=None, upper_space=None,
                  font_name='HeiseiMin-W3', num_font_name='Times-Roman',
-                 font_size=None, line_space=None,):
+                 font_size=10.0, line_space=None,):
         """コンストラクタ
 
         Parameters
@@ -35,14 +39,13 @@ class PageMan:
         self.size = Size(*size)
         self.font_name = font_name
         self.num_font_name = num_font_name
+        self.font_size = font_size
 
         self.margin = Size(*margin) if margin else Size(2 * cm, 2 * cm)
-        if upper_space is None:
-            self.upper_space = self.size.h / 4
-        else:
-            self.upper_space = upper_space
-        self.font_size = 10.0 if font_size is None else font_size
-        self.line_space = self.font_size if line_space is None else line_space
+        self.upper_space = self.size.h / 4 if upper_space is None \
+            else upper_space
+        self.line_space = self.font_size * 0.95 if line_space is None \
+            else line_space
 
         # 書き出しの準備
         self.pdf = io.BytesIO()
@@ -79,6 +82,11 @@ class PageMan:
     def commit_page(self):
         self.canvas.showPage()
 
+    def close(self):
+        self.commit_page()
+        self.canvas.save()
+        self.pdf.seek(0)
+
     def save(self, file_name):
         """PDF をファイルに出力する
 
@@ -87,9 +95,6 @@ class PageMan:
         file_name : str
             出力先のファイル名
         """
-        self.commit_page()
-        self.canvas.save()
-        self.pdf.seek(0)
         with open(file_name, 'wb') as f:
             f.write(self.pdf.read())
 
@@ -306,3 +311,116 @@ class PageMan:
         # 空文字列を1行として書き出す
         l_idx = self.draw_single_line(l_idx, '')
         return l_idx
+
+
+def get_h2_letter(h2_count):
+    if h2_count < 1:
+        return ''
+    h2_letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    max_num = len(h2_letters)
+    q = (h2_count - 1) // max_num
+    s = (h2_count - 1) % max_num
+    return get_h2_letter(q) + h2_letters[s]
+
+
+def psc_to_pdf(psc, size=None, margin=None, upper_space=None,
+               font_name='HeiseiMin-W3', num_font_name='Times-Roman',
+               font_size=10.0, line_space=None):
+    """PSc オブジェクトから PDF を生成する
+
+    Parameters
+    ----------
+    psc : PSc
+        ソースとなる PSc オブジェクト
+    size : tuple
+        ページのサイズ (ポイント)
+    margin : tuple
+        左右と上下のマージン (ポイント)
+    upper_space : float
+        上の余白 (ポイント)
+    font_name : str
+        本文のフォント
+    num_font_name : str
+        数字のフォント
+    font_size : float
+        本文のフォントサイズ (ポイント)
+    line_space : float
+        本文の行間 (ポイント)
+
+    Returns
+    -------
+    pdf : BytesIO
+        生成した PDF のバイナリストリーム
+    """
+    # フォントの設定
+    pdfmetrics.registerFont(UnicodeCIDFont(font_name, isVertical=True))
+
+    # ページの設定
+    if not size:
+        size = portrait(A5)
+    if not margin:
+        margin = (2.0 * cm, 2.0 * cm)
+    pm = PageMan(size, margin=margin, upper_space=upper_space,
+                 font_name=font_name, num_font_name=num_font_name,
+                 font_size=font_size, line_space=line_space)
+
+    last_line_type = None
+    h1_count = h2_count = 0
+    l_idx = 0
+
+    # 行ごとの処理
+    for psc_line in psc.lines:
+        line_type = psc_line.type
+
+        # 行の種類が変わったら、1行空ける
+        if last_line_type and (last_line_type != line_type):
+            if not (last_line_type == PScLineType.TITLE \
+                    and line_type == PScLineType.AUTHOR):
+                l_idx += 1
+
+        if line_type == PScLineType.TITLE:
+            l_idx = pm.draw_title(l_idx, psc_line)
+
+        elif line_type == PScLineType.AUTHOR:
+            l_idx = pm.draw_author(l_idx, psc_line)
+
+        elif line_type == PScLineType.CHARSHEADLINE:
+            l_idx = pm.draw_charsheadline(l_idx, psc_line)
+
+        elif line_type == PScLineType.CHARACTER:
+            l_idx = pm.draw_character(l_idx, psc_line)
+
+        elif line_type == PScLineType.H1:
+            h1_count += 1
+            h2_count = 0
+            l_idx = pm.draw_slugline(
+                l_idx, psc_line, number=h1_count, border=True)
+
+        elif line_type == PScLineType.H2:
+            h2_count += 1
+            number = str(h1_count) + get_h2_letter(h2_count)
+            l_idx = pm.draw_slugline(l_idx, psc_line, number=number)
+
+        elif line_type == PScLineType.H3:
+            l_idx = pm.draw_slugline(l_idx, psc_line)
+
+        elif line_type == PScLineType.DIRECTION:
+            l_idx = pm.draw_direction(l_idx, psc_line)
+
+        elif line_type == PScLineType.DIALOGUE:
+            l_idx = pm.draw_dialogue(l_idx, psc_line)
+
+        elif line_type == PScLineType.ENDMARK:
+            l_idx = pm.draw_endmark(l_idx, psc_line)
+
+        elif line_type == PScLineType.COMMENT:
+            l_idx = pm.draw_comment(l_idx, psc_line)
+
+        elif line_type == PScLineType.EMPTY:
+            l_idx = pm.draw_empty(l_idx, psc_line)
+
+        last_line_type = line_type
+
+    # PDF の入ったバイナリストリームを返す
+    pm.close()
+    return pm.pdf

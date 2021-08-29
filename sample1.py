@@ -2,7 +2,6 @@ from reportlab.lib.pagesizes import portrait, A5
 from reportlab.lib.units import cm
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.cidfonts import UnicodeCIDFont
-from reportlab.pdfbase.ttfonts import TTFont
 
 from playscript import PScLineType, PScLine
 
@@ -19,10 +18,7 @@ def main():
     # ページの設定
     size = portrait(A5)
     margin = (2.0 * cm, 2.0 * cm)
-    font_size = 10.0
-    line_space = 9.5
-    pm = PageMan(
-        size, margin=margin, font_size=font_size, line_space=line_space)
+    pm = PageMan(size, margin=margin)
 
     # print(pm.canvas.getAvailableFonts())
 
@@ -30,7 +26,7 @@ def main():
 
     text = '私はいかにしてパッケージを作ったか'
     ttl_line = PScLine(PScLineType.TITLE, text=text)
-    line_idx = pm.draw_direction(line_idx, ttl_line)
+    line_idx = pm.draw_title(line_idx, ttl_line)
 
     text = 'アラン・スミシ'
     athr_line = PScLine(PScLineType.AUTHOR, text=text)
@@ -144,6 +140,7 @@ def main():
     line_idx = pm.draw_endmark(line_idx, endmk_line)
 
     # ファイルに出力する
+    pm.close()
     pm.save('out.pdf')
 
 
