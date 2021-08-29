@@ -14,7 +14,7 @@ Size = namedtuple('Size' , 'w h')
 class PageMan:
     def __init__(self, size, margin=None, upper_space=None,
                  font_name='HeiseiMin-W3', num_font_name='Times-Roman',
-                 font_size=10.0, line_space=None,):
+                 font_size=10.0, line_space=None, before_init_page=None):
         """コンストラクタ
 
         Parameters
@@ -33,6 +33,8 @@ class PageMan:
             本文のフォントサイズ (ポイント)
         line_space : float
             本文の行間 (ポイント)
+        before_init_page : function
+            ページ初期化時のカスタム処理の関数
         """
 
         # 属性の設定
@@ -40,6 +42,7 @@ class PageMan:
         self.font_name = font_name
         self.num_font_name = num_font_name
         self.font_size = font_size
+        self.before_init_page = before_init_page
 
         self.margin = Size(*margin) if margin else Size(2 * cm, 2 * cm)
         self.upper_space = self.size.h / 4 if upper_space is None \
@@ -67,8 +70,12 @@ class PageMan:
         return int(count)
 
     def init_page(self):
-        """新しいページのための前処理
+        """ページごとの初期化処理
         """
+        # カスタム処理
+        if self.before_init_page:
+            self.before_init_page(self)
+
         # 横線を書き出す
         x1 = self.margin.w - self.line_space
         x2 = self.size.w - self.margin.w + self.line_space
@@ -325,7 +332,8 @@ def get_h2_letter(h2_count):
 
 def psc_to_pdf(psc, size=None, margin=None, upper_space=None,
                font_name='HeiseiMin-W3', num_font_name='Times-Roman',
-               font_size=10.0, line_space=None):
+               font_size=10.0, line_space=None, before_init_page=None,
+               draw_page_num=True):
     """PSc オブジェクトから PDF を生成する
 
     Parameters
@@ -346,12 +354,40 @@ def psc_to_pdf(psc, size=None, margin=None, upper_space=None,
         本文のフォントサイズ (ポイント)
     line_space : float
         本文の行間 (ポイント)
+    before_init_page : function
+        ページ初期化時のカスタム処理の関数
+    draw_page_num : bool
+        ページ番号を書き出すかどうか
 
     Returns
     -------
     pdf : BytesIO
         生成した PDF のバイナリストリーム
     """
+    # ページ初期化時のカスタム処理
+    def custom_init(pm):
+        if before_init_page:
+            before_init_page(pm)
+
+        if draw_page_num:
+            # ページ番号を加算して文字列にする
+            if hasattr(pm, 'page_num'):
+                pm.page_num += 1
+            else:
+                pm.page_num = 1
+            s = f'- {pm.page_num} -'
+
+            # フォントと位置の準備
+            f_name = pm.num_font_name
+            f_size = pm.font_size * 0.8
+            w = pm.canvas.stringWidth(s, f_name, f_size)
+            pm.canvas.setFont(f_name, f_size)
+            x = pm.size.w / 2 - w / 2
+            y = pm.margin.h / 2
+
+            # 書き出す
+            pm.canvas.drawString(x, y, s)
+
     # フォントの設定
     pdfmetrics.registerFont(UnicodeCIDFont(font_name, isVertical=True))
 
@@ -362,7 +398,8 @@ def psc_to_pdf(psc, size=None, margin=None, upper_space=None,
         margin = (2.0 * cm, 2.0 * cm)
     pm = PageMan(size, margin=margin, upper_space=upper_space,
                  font_name=font_name, num_font_name=num_font_name,
-                 font_size=font_size, line_space=line_space)
+                 font_size=font_size, line_space=line_space,
+                 before_init_page=custom_init)
 
     last_line_type = None
     h1_count = h2_count = 0
@@ -418,6 +455,9 @@ def psc_to_pdf(psc, size=None, margin=None, upper_space=None,
 
         elif line_type == PScLineType.EMPTY:
             l_idx = pm.draw_empty(l_idx, psc_line)
+
+        else:
+            raise TypeError(f'{line_type} はサポートされていません。' )
 
         last_line_type = line_type
 
